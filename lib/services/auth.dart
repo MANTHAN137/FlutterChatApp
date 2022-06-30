@@ -33,25 +33,26 @@ class AuthMethods {
     User? userDetails = result.user;
     // ignore: unrelated_type_equality_checks
     if (result != Null) {
-      SharedPreferenceHelper().saveUserEmail(userDetails!.email!);
+    SharedPreferenceHelper().saveUserEmail(userDetails!.email!);
+    SharedPreferenceHelper()
+        .saveUserName(userDetails.email!.replaceAll("@gmail.com", ""));
+    SharedPreferenceHelper().saveUserId(userDetails.uid);
+    SharedPreferenceHelper().saveDisplayName(userDetails.displayName!);
+    SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL!);
 
-      SharedPreferenceHelper().saveUserId(userDetails.uid);
-      SharedPreferenceHelper().saveDisplayName(userDetails.displayName!);
-      SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL!);
-
-      Map<String, dynamic> userInfoMap = {
-        'email': userDetails.email,
-        'username': userDetails.email!.replaceAll("@gmail.com", ""),
-        "name": userDetails.displayName,
-        'imgUrl': userDetails.photoURL,
-      };
-      DatabaseMethods()
-          .addUserInfoToDB(userDetails.uid, userInfoMap)
-          .then((value) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Home()));
-      });
-    }
+    Map<String, dynamic> userInfoMap = {
+      'email': userDetails.email,
+      'username': userDetails.email!.replaceAll("@gmail.com", ""),
+      "name": userDetails.displayName,
+      'imgUrl': userDetails.photoURL,
+    };
+    DatabaseMethods()
+        .addUserInfoToDB(userDetails.uid, userInfoMap)
+        .then((value) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Home()));
+    });
+     }
   }
 
   Future signOut() async {

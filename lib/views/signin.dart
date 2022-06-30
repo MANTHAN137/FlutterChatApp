@@ -14,6 +14,8 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Massenger"),
+          shadowColor: Colors.grey,
+          backgroundColor: Color.fromARGB(255, 255, 139, 104),
         ),
         body: Center(
           child: GestureDetector(
@@ -22,12 +24,13 @@ class _SignInState extends State<SignIn> {
             },
             child: Container(
               decoration: BoxDecoration(
-                  color: Color(0xffDB4437),
-                  borderRadius: BorderRadius.circular(24)),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  color: Color.fromARGB(255, 245, 156, 129),
+                  borderRadius: BorderRadius.circular(30)),
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
               child: const Text(
                 "Sign In with Google",
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 20,fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),
