@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../helperfunction/sharedpref_helper.dart';
+
 class Home extends StatefulWidget {
   @override
   State<Home> createState() => _HomeState();
@@ -13,9 +15,27 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool isSearching = false;
+  late String myName, myProfilePic, myUserName, myEmail;
   TextEditingController searchUsernameEditingController =
       TextEditingController();
+
+  getMyInfoFromSharedPreference() async {
+    myName = await SharedPreferenceHelper().getDisplayName as String;
+
+    myProfilePic = await SharedPreferenceHelper().getUserProfileUrl() as String;
+    myUserName = await SharedPreferenceHelper().getUserName() as String;
+    myEmail = await SharedPreferenceHelper().getUserEmail() as String;
+  }
+
   late Stream userStream;
+  getChatRoomIdByUsernames(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return "$b\_$a";
+    } else {
+      return "$a\_b";
+    }
+  }
+
   onSearchBtnClick() async {
     isSearching = true;
     setState(() {});
@@ -24,11 +44,21 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  Widget searchListUserTile({required String profileUrl, name,username, email}) {
+  Widget searchListUserTile(
+      {required String profileUrl, name, username, email}) {
     return GestureDetector(
       onTap: () {
+        var chatRoomId = getChatRoomIdByUsernames(myUserName, username);
+
+        Map<String, dynamic> chatRoomInfoMap = {"users": [
+          myUserName,username
+        ]};
+
+            
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) =>  ChatScreen(username ,name, username: username); 
+            context,
+            MaterialPageRoute(
+                builder: (context) => ChatScreen(username, name)));
       },
       child: Row(
         children: [
@@ -64,10 +94,13 @@ class _HomeState extends State<Home> {
                   DocumentSnapshot ds =
                       (snapshot.data as QuerySnapshot).docs[index];
                   return searchListUserTile(
-                      profileUrl:ds['imgUrl'], name:ds['name'], username:ds['username'],email:ds['email']);
+                      profileUrl: ds['imgUrl'],
+                      name: ds['name'],
+                      username: ds['username'],
+                      email: ds['email']);
                 },
               )
-            : const Center(
+            : Center(
                 child: const CircularProgressIndicator(),
               );
       },
@@ -79,6 +112,13 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    getMyInfoFromSharedPreference();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -87,8 +127,8 @@ class _HomeState extends State<Home> {
           InkWell(
             onTap: () {
               AuthMethods().signOut().then((s) {
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => const SignIn()));
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const SignIn()));
               });
             },
             child: Container(
