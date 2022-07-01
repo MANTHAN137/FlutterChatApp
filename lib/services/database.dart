@@ -8,10 +8,9 @@ class DatabaseMethods {
         .doc(userId)
         .set(userInfoMap);
   }
+
   Future<CollectionReference<Map<String, dynamic>>> getAllUsers() async {
-    return FirebaseFirestore.instance
-        .collection("users")
-        ;
+    return FirebaseFirestore.instance.collection("users");
   }
 
   Future<Stream<QuerySnapshot>> getName(String name) async {

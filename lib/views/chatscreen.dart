@@ -1,5 +1,10 @@
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unnecessary_string_escapes
+
+import 'package:chat_app/constants/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/transition.dart';
+import 'package:chat_app/widgets/message_blob.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
 
@@ -7,7 +12,8 @@ import '../helperfunction/sharedpref_helper.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatWithUsername, name;
-  ChatScreen(this.chatWithUsername, this.name);
+  ChatScreen(this.chatWithUsername, this.name, this.personImage);
+  String personImage;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -62,6 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
           "lastMessageSendTs": lastMessageTs,
           "lastMessageSendBy": myUserName
         };
+
         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
 
         if (sendClicked) {
@@ -81,62 +88,154 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     doThisOnLaunch();
-    print(myUserName);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-            appBar: AppBar(title: Text(widget.name)),
-            // ignore: unnecessary_null_comparison
-            body: Container(
-              child: Stack(
+    return Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.transparent,
+          elevation: 0.0,
+          title: Column(
+            children: [
+              Row(
                 children: [
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 5, 10),
-                      color: Colors.black.withOpacity(0.8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: TextField(
-                            controller: messageTextEditingController,
-                            onChanged: (value) {
-                              addMessage(false);
-                            },
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "Message",
-                                hintStyle: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white.withOpacity(0.7))),
-                          )),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            child: GestureDetector(
-                              onTap: () {
-                                addMessage(true);
-                              },
-                              child: const Icon(
-                                Icons.send_rounded,
-                                size: 45,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Icon(
+                      Icons.keyboard_arrow_left,
+                      color: primaryAppColor,
+                      size: 32,
                     ),
-                  )
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                      widget.personImage,
+                      height: 40,
+                      width: 40,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    widget.name,
+                    style: primaryTextStyle(
+                        color: primaryAppColor,
+                        size: 19,
+                        weight: FontWeight.w600),
+                  ),
                 ],
               ),
-            ));
+            ],
+          ),
+        ),
+        body: Container(
+          child: Stack(
+            children: [
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.76,
+                          decoration: BoxDecoration(
+                            color: chatScreenColor,
+                          ),
+                          child: ShaderMask(
+                            shaderCallback: (Rect rect) {
+                              return LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.black,
+                                  Colors.transparent,
+                                  Colors.transparent,
+                                  Colors.black
+                                ],
+                                stops: [
+                                  0.0,
+                                  0.1,
+                                  0.9,
+                                  1.0
+                                ], // 10% purple, 80% transparent, 10% purple
+                              ).createShader(rect);
+                            },
+                            blendMode: BlendMode.dstOut,
+                            child: ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                itemCount: 200,
+                                itemBuilder: ((context, index) {  
+                              return Align(
+                                alignment: Alignment.bottomRight,
+                                child: MessageBlob(chat: "sfsjfkshjfks",who: SendBy.friend,time: "sdsd",),
+                              );
+                            })),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Container(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                            height: 60,
+                            child: CupertinoSearchTextField(
+                              suffixIcon: Icon(
+                                Icons.send,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                              suffixInsets: EdgeInsets.only(right: 13),
+                              controller: messageTextEditingController,
+                              placeholder: "Message...",
+                              onSuffixTap: () {
+                                addMessage(true);
+                              },
+                              onSubmitted: (v) {
+                                addMessage(true);
+                              },
+                              placeholderStyle: TextStyle(
+                                  color: Colors.white.withOpacity(0.6)),
+                              style: primaryTextStyle(
+                                  color: Colors.white,
+                                  size: 16,
+                                  weight: FontWeight.w500),
+                              prefixIcon: SizedBox(
+                                width: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(21),
+                                color: primaryAppColor.withOpacity(0.9),
+                              ),
+                            )),
+                      )),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }
-
