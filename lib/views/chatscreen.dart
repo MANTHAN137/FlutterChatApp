@@ -87,9 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return myUserName != "Manthan"
-        ? Container()
-        : Scaffold(
+    return  Scaffold(
             appBar: AppBar(title: Text(widget.name)),
             // ignore: unnecessary_null_comparison
             body: Container(
@@ -142,7 +140,3 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// @override
-// Widget build(BuildContext context) {
-//   return TextField();
-// }

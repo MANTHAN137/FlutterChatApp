@@ -13,16 +13,17 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool isSearching = false;
-  late String myName, myProfilePic, myEmail;
-  String myUserName = "indiakamanthan";
+  late String myName, myProfilePic, myEmail, myUserName;
+
   TextEditingController searchUsernameEditingController =
       TextEditingController();
 
   getMyInfoFromSharedPreference() async {
     myName = (await SharedPreferenceHelper().getDisplayName());
     myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl());
-    myUserName = (await SharedPreferenceHelper().getUserName());
     myEmail = (await SharedPreferenceHelper().getUserEmail());
+    myUserName = myEmail.replaceAll("@gmail.com", "");
+    myUserName = (await SharedPreferenceHelper().getUserName());
   }
 
   late Stream userStream;
@@ -110,39 +111,40 @@ class _HomeState extends State<Home> {
   }
 
   Widget searchUsersList() {
-    // return StreamBuilder(
-    //   stream: userStream,
-    //   builder: (context, snapshot) {
-    //     return snapshot.hasData
-    //         ? ListView.builder(
-    //             itemCount: (snapshot.data as QuerySnapshot).docs.length,
-    //             shrinkWrap: true,
-    //             itemBuilder: (context, index) {
-    //               DocumentSnapshot ds =
-    //                   (snapshot.data as QuerySnapshot).docs[index];
-    //               return searchListUserTile(
-    //                   profileUrl: ds['imgUrl'],
-    //                   name: ds['name'],
-    //                   username: ds['username'],
-    //                   email: ds['email']);
-    //             },
-    //           )
-    //         : Center(
-    //             child: const CircularProgressIndicator(),
-    //           );
-    //   },
-    // );
-    return fireusers.isEmpty
-        ? ListView.builder(
-            itemCount: fireusers.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return fireusers[index];
-            },
-          )
-        : Center(
-            child: const CircularProgressIndicator(),
-          );
+    return StreamBuilder(
+      stream: userStream,
+      builder: (context, snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+                itemCount: (snapshot.data as QuerySnapshot).docs.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds =
+                      (snapshot.data as QuerySnapshot).docs[index];
+                  return searchListUserTile(
+                      profileUrl: ds['imgUrl'],
+                      name: ds['name'],
+                      username: ds['username'],
+                      email: ds['email']);
+                },
+              )
+            : Center(
+                child: const CircularProgressIndicator(),
+              );
+      },
+    );
+
+    //   return fireusers.isEmpty
+    //       ? ListView.builder(
+    //           itemCount: fireusers.length,
+    //           shrinkWrap: true,
+    //           itemBuilder: (context, index) {
+    //             return fireusers[index];
+    //           },
+    //         )
+    //       : Center(
+    //           child: const CircularProgressIndicator(),
+    //         );
   }
 
   Widget chatRoomsList() {
@@ -254,78 +256,78 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-class SearchListUserTile extends StatefulWidget {
-  SearchListUserTile(
-      {Key? key,
-      required this.myUserName,
-      required this.name,
-      required this.email,
-      required this.profileUrl,
-      required this.username})
-      : super(key: key);
-  String myUserName, name, profileUrl, email, username;
-  @override
-  State<SearchListUserTile> createState() => _SearchListUserTileState();
-}
-
-class _SearchListUserTileState extends State<SearchListUserTile> {
-  getChatRoomIdByUsernames(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
-    } else {
-      return "$a\_b";
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        var chatRoomId =
-            getChatRoomIdByUsernames(widget.myUserName, widget.username);
-
-        Map<String, dynamic> chatRoomInfoMap = {
-          "users": [widget.myUserName, widget.username]
-        };
-
-        DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap);
-
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(widget.username, widget.name)));
-      },
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              widget.profileUrl,
-              height: 60,
-              width: 60,
-            ),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.name,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 2,
-              ),
-              Text(widget.email)
-            ],
-          )
-        ],
-      ),
-    );
-  }
-}
+// 
+// class SearchListUserTile extends StatefulWidget {
+//   SearchListUserTile(
+//       {Key? key,
+//       required this.myUserName,
+//       required this.name,
+//       required this.email,
+//       required this.profileUrl,
+//       required this.username})
+//       : super(key: key);
+//   String myUserName, name, profileUrl, email, username;
+//   @override
+//   State<SearchListUserTile> createState() => _SearchListUserTileState();
+// }
+// 
+// class _SearchListUserTileState extends State<SearchListUserTile> {
+//   getChatRoomIdByUsernames(String a, String b) {
+//     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+//       return "$b\_$a";
+//     } else {
+//       return "$a\_b";
+//     }
+//   }
+// 
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: () {
+//         var chatRoomId =
+//             getChatRoomIdByUsernames(widget.myUserName, widget.username);
+// 
+//         Map<String, dynamic> chatRoomInfoMap = {
+//           "users": [widget.myUserName, widget.username]
+//         };
+// 
+//         DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap);
+// 
+//         Navigator.push(
+//             context,
+//             MaterialPageRoute(
+//                 builder: (context) =>
+//                     ChatScreen(widget.username, widget.name)));
+//       },
+//       child: Row(
+//         children: [
+//           ClipRRect(
+//             borderRadius: BorderRadius.circular(10),
+//             child: Image.network(
+//               widget.profileUrl,
+//               height: 60,
+//               width: 60,
+//             ),
+//           ),
+//           const SizedBox(
+//             width: 20,
+//           ),
+//           Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 widget.name,
+//                 style:
+//                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+//               ),
+//               SizedBox(
+//                 height: 2,
+//               ),
+//               Text(widget.email)
+//             ],
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }

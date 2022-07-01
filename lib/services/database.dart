@@ -19,7 +19,7 @@ class DatabaseMethods {
         .collection("users")
         .where(
           "name",
-          isGreaterThanOrEqualTo: name,
+          isGreaterThan: name,
         )
         .snapshots();
   }
