@@ -17,19 +17,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-
-      
+      title: 'Chat App',
       home: FutureBuilder(
         future: AuthMethods().getCurrentUser(),
         builder: (context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasData) {
             return Home();
           } else {
-            return SignIn();
+            return const SignIn();
           }
         },
 

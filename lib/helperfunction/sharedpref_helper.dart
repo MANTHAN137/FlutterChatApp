@@ -53,6 +53,7 @@ class SharedPreferenceHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(displayNameKey)!;
   }
+
   Future<String> getUserProfileUrl() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(userProfilePicKey)!;
