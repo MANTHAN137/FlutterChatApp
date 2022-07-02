@@ -31,7 +31,7 @@ class _SearchListUserTileState extends State<SearchListUserTile> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        var chatRoomId =
+        String chatRoomId =
             getChatRoomIdByUsernames(widget.myUserName, widget.username);
 
         Map<String, dynamic> chatRoomInfoMap = {
@@ -40,7 +40,7 @@ class _SearchListUserTileState extends State<SearchListUserTile> {
 
         DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap);
         Navigator.of(context).push(
-            SecondPageRoute(widget.username, widget.name, widget.profileUrl));
+            SecondPageRoute(widget.username, widget.name, widget.profileUrl,chatRoomId));
       },
       child: Row(
         children: [
@@ -76,18 +76,18 @@ class _SearchListUserTileState extends State<SearchListUserTile> {
 }
 
 class SecondPageRoute extends CupertinoPageRoute {
-  SecondPageRoute(this.chatWithUsername, this.name, this.personImage)
+  SecondPageRoute(this.chatWithUsername, this.name, this.personImage,this.chatRoomId)
       : super(
             builder: (BuildContext context) =>
-                ChatScreen(chatWithUsername, name, personImage));
+                ChatScreen(chatWithUsername, name, personImage,chatRoomId));
 
-  String chatWithUsername, name, personImage;
+  String chatWithUsername, name, personImage,chatRoomId;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return ScaleTransition(
         scale: animation.drive(Tween(begin: 1,end: 1)),
-        child: ChatScreen(chatWithUsername, name, personImage));
+        child: ChatScreen(chatWithUsername, name, personImage,chatRoomId));
   }
 }

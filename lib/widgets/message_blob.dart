@@ -53,7 +53,11 @@ class _MessageBlobState extends State<MessageBlob> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 15),
-              child: Text(widget.time),
+              child: Text(widget.time,
+                  style: primaryTextStyle(
+                      color: primaryAppColor.withOpacity(0.5),
+                      size: 10,
+                      weight: FontWeight.w500)),
             )
           ],
         ),
