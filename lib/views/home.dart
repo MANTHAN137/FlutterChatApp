@@ -13,55 +13,32 @@ import '../helperfunction/sharedpref_helper.dart';
 class Home extends StatefulWidget {
   @override
   State<Home> createState() => _HomeState();
+  Home({required this.email});
+  String email;
 }
 
 class _HomeState extends State<Home> {
   bool isSearching = false;
-  late String myName, myProfilePic, myEmail, myUserName;
+  String? myUserName;
+  SharedPreferenceHelper helper = SharedPreferenceHelper();
 
   TextEditingController searchUsernameEditingController =
       TextEditingController();
 
-  getMyInfoFromSharedPreference() async {
-    myName = (await SharedPreferenceHelper().getDisplayName());
-    myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl());
-    myEmail = (await SharedPreferenceHelper().getUserEmail());
-    myUserName = myEmail.replaceAll("@gmail.com", "");
-    myUserName = (await SharedPreferenceHelper().getUserName());
-  }
-
   late Stream userStream;
-
-  getChatRoomIdByUsernames(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
-    } else {
-      return "$a\_b";
-    }
-  }
-
-  onSearchBtnClick() async {
-    isSearching = true;
-    setState(() {});
-    userStream =
-        await DatabaseMethods().getName(searchUsernameEditingController.text);
-
-    setState(() {});
-  }
 
   Future<List<SearchListUserTile>> getAllFireUsers() async {
     List<Widget> widgets = [];
     CollectionReference cr = await DatabaseMethods().getAllUsers();
     QuerySnapshot qs = await cr.get();
-    final List<SearchListUserTile> allData = await qs.docs.map((e) {
+    final List<SearchListUserTile> allData = qs.docs.map((e) {
       return SearchListUserTile(
           profileUrl: e['imgUrl'],
           name: e['name'],
           email: e['email'],
           username: e['username'],
-          myUserName: myUserName);
+          myUserName: widget.email.replaceAll("@gmail.com", ""));
     }).toList();
-    print(allData[0].name);
     return allData;
   }
 
@@ -86,27 +63,25 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getAllFireUsers().then((value) {
-        fireusers = value;
-        dupliFireusers = value;
-        setState(() {});
-      });
+    getAllFireUsers().then((value) {
+      fireusers = value;
+      dupliFireusers = value;
+      setState(() {});
     });
-    getMyInfoFromSharedPreference();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         foregroundColor: Colors.transparent,
         title: Padding(
           padding: const EdgeInsets.only(top: 10, left: 10),
-          child:  Row(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -119,9 +94,7 @@ class _HomeState extends State<Home> {
               Text(
                 "Chat",
                 style: primaryTextStyle(
-                    color: primaryAppColor,
-                    size: 32,
-                    weight: FontWeight.w700),
+                    color: primaryAppColor, size: 32, weight: FontWeight.w700),
               ),
             ],
           ),
@@ -137,8 +110,10 @@ class _HomeState extends State<Home> {
             child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Icon(
-                  Icons.logout_rounded,
+                  Icons.power_settings_new,
                   color: Colors.grey.shade900,
+                  size: 25,
+                  
                 )),
           )
         ],
@@ -181,13 +156,13 @@ class _HomeState extends State<Home> {
             },
           )
         : SizedBox(
-          height: MediaQuery.of(context).size.height*0.6,
-          child: Center(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(
               child: CircularProgressIndicator(
                 color: primaryAppColor,
                 strokeWidth: 3,
               ),
             ),
-        );
+          );
   }
 }

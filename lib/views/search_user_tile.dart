@@ -23,7 +23,7 @@ class _SearchListUserTileState extends State<SearchListUserTile> {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
     } else {
-      return "$a\_b";
+      return "$a\_$b";
     }
   }
 
@@ -39,8 +39,8 @@ class _SearchListUserTileState extends State<SearchListUserTile> {
         };
 
         DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap);
-        Navigator.of(context).push(
-            SecondPageRoute(widget.username, widget.name, widget.profileUrl,chatRoomId));
+        Navigator.of(context).push(SecondPageRoute(
+            widget.username, widget.name, widget.profileUrl, chatRoomId, widget.myUserName));
       },
       child: Row(
         children: [
@@ -76,18 +76,19 @@ class _SearchListUserTileState extends State<SearchListUserTile> {
 }
 
 class SecondPageRoute extends CupertinoPageRoute {
-  SecondPageRoute(this.chatWithUsername, this.name, this.personImage,this.chatRoomId)
+  SecondPageRoute(
+      this.chatWithUsername, this.name, this.personImage, this.chatRoomId, this.myUserName)
       : super(
             builder: (BuildContext context) =>
-                ChatScreen(chatWithUsername, name, personImage,chatRoomId));
+                ChatScreen(chatWithUsername, name, personImage, chatRoomId,myUserName));
 
-  String chatWithUsername, name, personImage,chatRoomId;
+  String chatWithUsername, name, personImage, chatRoomId, myUserName;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return ScaleTransition(
-        scale: animation.drive(Tween(begin: 1,end: 1)),
-        child: ChatScreen(chatWithUsername, name, personImage,chatRoomId));
+        scale: animation.drive(Tween(begin: 1, end: 1)),
+        child: ChatScreen(chatWithUsername, name, personImage, chatRoomId,myUserName));
   }
 }

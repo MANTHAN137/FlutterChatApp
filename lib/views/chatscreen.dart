@@ -17,9 +17,10 @@ import '../helperfunction/sharedpref_helper.dart';
 class ChatScreen extends StatefulWidget {
   final String chatWithUsername, name;
   ChatScreen(
-      this.chatWithUsername, this.name, this.personImage, this.chatRoomId);
+      this.chatWithUsername, this.name, this.personImage, this.chatRoomId, this.myUsername);
   String personImage;
   String chatRoomId;
+  String myUsername;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -27,26 +28,18 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late String messageId = "";
-  late String myName, myProfilePic, myEmail;
-  late String myUserName;
+  String? myName, myProfilePic, myEmail;
+  String? myUserName;
   Queue<MessageBlob> messageBlobs = Queue();
   Stream<QuerySnapshot<Map<String, dynamic>>>? chatMessageStream;
   TextEditingController messageTextEditingController = TextEditingController();
 
-  getMyInfoFromSharedPreference() async {
-    myName = (await SharedPreferenceHelper().getDisplayName());
-    myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl());
-    myUserName = (await SharedPreferenceHelper().getUserName());
-    myEmail = (await SharedPreferenceHelper().getUserEmail());
-  }
-
-  getChatRoomIdByUsernames(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
-    } else {
-      return "$a\_b";
-    }
-  }
+  // getMyInfoFromSharedPreference() async {
+  //   myName = (await SharedPreferenceHelper().getDisplayName());
+  //   myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl());
+  //   myUserName = (await SharedPreferenceHelper().getUserName());
+  //   myEmail = (await SharedPreferenceHelper().getUserEmail());
+  // }
 
   addMessage(bool sendClicked) {
     if (messageTextEditingController.text != "") {
@@ -57,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       Map<String, dynamic> messageInfoMap = {
         "message": message,
-        "sendBy": myUserName,
+        "sendBy": widget.myUsername,
         "ts": lastMessageTs,
         "imgUrl": myProfilePic
       };
@@ -88,9 +81,9 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  doThisOnLaunch() async {
-    await getMyInfoFromSharedPreference();
-  }
+  // doThisOnLaunch() async {
+  //   await getMyInfoFromSharedPreference();
+  // }
 
   Widget chatMessageList() {
     return StreamBuilder<QuerySnapshot>(
@@ -104,14 +97,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   physics: BouncingScrollPhysics(),
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: ((context, index) {
-
                     String time = DateFormat.Hm().format(
                         (snapshot.data?.docs[index].get("ts") as Timestamp)
                             .toDate());
-                            
+
                     SendBy who = SendBy.friend;
                     if (snapshot.data!.docs[index].get('sendBy') ==
-                        myUserName) {
+                        widget.myUsername) {
                       who = SendBy.me;
                     }
 
@@ -186,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
         chatMessageStream = value;
       });
     });
-    doThisOnLaunch();
+    // doThisOnLaunch();
     super.initState();
   }
 
