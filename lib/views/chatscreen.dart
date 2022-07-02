@@ -12,8 +12,6 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:random_string/random_string.dart';
 
-import '../helperfunction/sharedpref_helper.dart';
-
 class ChatScreen extends StatefulWidget {
   final String chatWithUsername, name;
   ChatScreen(
@@ -68,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Map<String, dynamic> lastMessageInfoMap = {
           "lastMessage": message,
           "lastMessageSendTs": lastMessageTs,
-          "lastMessageSendBy": myUserName
+          "lastMessageSendBy": widget.myUsername
         };
         DatabaseMethods()
             .updateLastMessageSend(widget.chatRoomId, lastMessageInfoMap);
