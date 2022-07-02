@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:chat_app/helperfunction/sharedpref_helper.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/home.dart';
@@ -16,43 +18,56 @@ class AuthMethods {
 
   signInWithGoogle(BuildContext context) async {
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-    final GoogleSignIn _googleSignIn = GoogleSignIn();
+    final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
+      'email',
+    ]);
 
     final GoogleSignInAccount? googleSignInAccount =
         await _googleSignIn.signIn();
 
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount!.authentication;
+    if (googleSignInAccount != null) {
+      final GoogleSignInAuthentication googleSignInAuthentication =
+          await googleSignInAccount.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-    UserCredential result =
-        await _firebaseAuth.signInWithCredential(credential);
+      final AuthCredential credential = GoogleAuthProvider.credential(
+          idToken: googleSignInAuthentication.idToken,
+          accessToken: googleSignInAuthentication.accessToken);
 
-    User? userDetails = result.user;
-    // ignore: unrelated_type_equality_checks
-    if (result != Null) {
-    SharedPreferenceHelper().saveUserEmail(userDetails!.email!);
-    SharedPreferenceHelper()
-        .saveUserName(userDetails.email!.replaceAll("@gmail.com", ""));
-    SharedPreferenceHelper().saveUserId(userDetails.uid);
-    SharedPreferenceHelper().saveDisplayName(userDetails.displayName!);
-    SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL!);
+      try {
+        UserCredential result =
+            await _firebaseAuth.signInWithCredential(credential);
 
-    Map<String, dynamic> userInfoMap = {
-      'email': userDetails.email,
-      'username': userDetails.email!.replaceAll("@gmail.com", ""),
-      "name": userDetails.displayName,
-      'imgUrl': userDetails.photoURL,
-    };
-    DatabaseMethods()
-        .addUserInfoToDB(userDetails.uid, userInfoMap)
-        .then((value) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Home()));
-    });
-     }
+        User userDetails = result.user!;
+        // ignore: unrelated_type_equality_checks
+        if (result != Null) {
+          SharedPreferenceHelper().saveUserEmail(userDetails.email!);
+          SharedPreferenceHelper()
+              .saveUserName(userDetails.email!.replaceAll("@gmail.com", ""));
+          SharedPreferenceHelper().saveUserId(userDetails.uid);
+          SharedPreferenceHelper().saveDisplayName(userDetails.displayName!);
+          SharedPreferenceHelper().saveUserProfileUrl(userDetails.photoURL!);
+
+          Map<String, dynamic> userInfoMap = {
+            'email': userDetails.email,
+            'username': userDetails.email!.replaceAll("@gmail.com", ""),
+            "name": userDetails.displayName,
+            'imgUrl': userDetails.photoURL,
+          };
+          DatabaseMethods()
+              .addUserInfoToDB(userDetails.uid, userInfoMap)
+              .then((value) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Home(
+                          email: userDetails.email!,
+                        )));
+          });
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   Future signOut() async {

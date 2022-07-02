@@ -1,3 +1,5 @@
+// ignore_for_file: await_only_futures
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseMethods {
@@ -38,6 +40,14 @@ class DatabaseMethods {
         .collection("chats")
         .doc(messageId)
         .set(messageInfoMap);
+  }
+
+  getConversationMessages(String chatRoomId) async {
+    return await FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .collection("chats").orderBy('ts',descending: true)
+        .snapshots();
   }
 
   updateLastMessageSend(
