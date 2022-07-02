@@ -16,7 +16,7 @@ class MessageBlob extends StatefulWidget {
 }
 
 class _MessageBlobState extends State<MessageBlob> {
-  Color color1 = const Color(0xffFFD5D4);
+  Color color1 = Colors.orange.shade100;
   Color color2 = const Color(0xffE5E5E5);
 
   @override

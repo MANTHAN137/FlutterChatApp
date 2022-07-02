@@ -106,10 +106,24 @@ class _HomeState extends State<Home> {
         foregroundColor: Colors.transparent,
         title: Padding(
           padding: const EdgeInsets.only(top: 10, left: 10),
-          child: Text(
-            "MeChat",
-            style: primaryTextStyle(
-                color: primaryAppColor, size: 32, weight: FontWeight.w600),
+          child:  Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Me",
+                style: primaryTextStyle(
+                    color: Colors.orange.shade300,
+                    size: 32,
+                    weight: FontWeight.w700),
+              ),
+              Text(
+                "Chat",
+                style: primaryTextStyle(
+                    color: primaryAppColor,
+                    size: 32,
+                    weight: FontWeight.w700),
+              ),
+            ],
           ),
         ),
         actions: [
