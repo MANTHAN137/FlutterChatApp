@@ -1,11 +1,14 @@
 // ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unnecessary_string_escapes
 
+import 'dart:collection';
+
 import 'package:chat_app/constants/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/transition.dart';
 import 'package:chat_app/widgets/message_blob.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:random_string/random_string.dart';
 
 import '../helperfunction/sharedpref_helper.dart';
@@ -23,6 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late String chatRoomId, messageId = "";
   late String myName, myProfilePic, myEmail;
   String myUserName = "Manthan";
+  Queue<MessageBlob> messageBlobs = Queue();
 
   TextEditingController messageTextEditingController = TextEditingController();
 
@@ -50,12 +54,18 @@ class _ChatScreenState extends State<ChatScreen> {
     if (messageTextEditingController.text != "") {
       String message = messageTextEditingController.text;
       var lastMessageTs = DateTime.now();
+
+      String time = DateFormat.Hm().format(lastMessageTs);
+
       Map<String, dynamic> messageInfoMap = {
         "message": message,
         "sendBy": myUserName,
         "ts": lastMessageTs,
         "imgUrl": myProfilePic
       };
+
+      messageBlobs.addFirst(MessageBlob(chat: message, time: time, who: SendBy.me));
+
       if (messageId == "") {
         messageId = randomAlphaNumeric(12);
       }
@@ -68,14 +78,13 @@ class _ChatScreenState extends State<ChatScreen> {
           "lastMessageSendTs": lastMessageTs,
           "lastMessageSendBy": myUserName
         };
-
         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
-
-        if (sendClicked) {
-          messageTextEditingController.text = "";
-          messageId = "";
-        }
       });
+
+      if (sendClicked) {
+        messageTextEditingController.text = "";
+        messageId = "";
+      }
     }
   }
 
@@ -150,10 +159,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Column(
                       children: [
                         Container(
-                          height: MediaQuery.of(context).size.height * 0.76,
+                          height: MediaQuery.of(context).size.height * 0.77,
                           decoration: BoxDecoration(
-                            color: chatScreenColor,
-                          ),
+                              color: chatScreenColor,
+                              border: Border.all(
+                                  color: primaryAppColor.withOpacity(0.02))),
                           child: ShaderMask(
                             shaderCallback: (Rect rect) {
                               return LinearGradient(
@@ -167,22 +177,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ],
                                 stops: [
                                   0.0,
-                                  0.1,
-                                  0.9,
+                                  0.05,
+                                  0.95,
                                   1.0
                                 ], // 10% purple, 80% transparent, 10% purple
                               ).createShader(rect);
                             },
                             blendMode: BlendMode.dstOut,
                             child: ListView.builder(
+                                reverse: true,
                                 physics: BouncingScrollPhysics(),
-                                itemCount: 200,
-                                itemBuilder: ((context, index) {  
-                              return Align(
-                                alignment: Alignment.bottomRight,
-                                child: MessageBlob(chat: "sfsjfkshjfks",who: SendBy.friend,time: "sdsd",),
-                              );
-                            })),
+                                itemCount: messageBlobs.length,
+                                itemBuilder: ((context, index) {
+                                  return messageBlobs.elementAt(index);
+                                })),
                           ),
                         ),
                       ],
